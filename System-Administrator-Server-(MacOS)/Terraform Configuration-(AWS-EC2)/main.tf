@@ -103,7 +103,6 @@ key_name = "SSG-KeyPair"         # Replace with the name of your key pair
       "sudo chown -R ec2-user: /opt/tomcat",
       "sudo chmod +x /opt/tomcat/bin/*.sh",
       "sudo systemctl daemon-reload",
-      ""
     ]
   }
 
