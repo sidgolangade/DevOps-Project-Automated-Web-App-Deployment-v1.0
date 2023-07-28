@@ -1,5 +1,12 @@
-## Create Ansible playbooks for deployment orchestration:
+# Ansible Playbook: Deploy Web Application to Web Server
 
+This Ansible playbook automates the deployment of a web application to a Web Server (hosted as "webserver"). The playbook ensures the web application is synchronized to the server, installs Python dependencies, and updates necessary configurations for proper execution.
+
+## Prerequisites
+
+1. Ensure you have Ansible installed on your control machine from which you will run this playbook.
+
+2. Create Ansible playbooks for deployment orchestration:
 - SSH into the Ansible Server using your preferred method.
 - Create a new directory for the Ansible playbooks:
 mkdir ansible-playbooks
@@ -12,33 +19,47 @@ sudo chown -R $USER:$USER /etc/ansible
 sudo chmod -R 755 /etc/ansible
 sudo vi /etc/ansible/hosts
 
-### Configuring Passwordless Connection between Ansible Server and Web Server
+## Playbook Structure
 
-- Configure SSH access from the Ansible control machine to the target web server(s): Generate an SSH key pair on the Ansible control machine (if you haven't already):
-ssh-keygen -t rsa -b 4096 -C "ansible-control-machine"
-ssh-copy-id user@target-web-server
-- Follow the prompts to generate the key pair. Copy the public key to the target web server(s) where you want to deploy your application:
-- cat /home/ec2-user/.ssh/id_rsa.pub
-- Copy the above SSH Public Key to Web Server. Steps:
-cd ~/.ssh/
-vi authorized_keys 
-PASTE HERE
+The playbook consists of the following tasks:
 
-- Copy the public key to the target web server(s) where you want to deploy your application:
-ssh-copy-id ec2-user@ec2-x-xxx-xx-xxx.eu-west-1.compute.amazonaws.com
+1. **Copy application code to Web Server**: Synchronizes the application code directory from the Ansible control machine to the Web Server's `/opt/tomcat/webapps/` directory.
 
-### Configuring hosts file on Ansible Server
-- sudo vi /etc/ansible/hosts
-PASTE the below:
-[webserver]
-target-web-server ansible_user=user
-Replace target-web-server with the hostname or IP address of the target web server, and user with the SSH username.
+2. **Install Web Application dependencies**: Uses pip to install Web Application dependencies from the specified requirements file on the Web Server.
 
-OPTIONAL:
-- Test Ansible connectivity to the target web server(s):
-- Verify that Ansible can communicate with the target web server(s) by running a simple ping command:
-ansible -i hosts webserver -m ping
+3. **Check if process is running on port 8080**: Checks if a process is currently running on port 8080 on the Web Server.
 
-### Configuring Ansible Playbook 
-- Copy the contents from deploy-web-app.yml to /home/ec2-user/ansible-playbooks/deploy-web-app.yml
+4. **Kill process running on port 8080**: If a process is found running on port 8080, it will be killed to free up the port for the web application.
+
+5. **Retrieve server IP address**: Uses curl to obtain the IP address of the Web Server, which will be used for updating the ALLOWED_HOSTS setting.
+
+6. **Update ALLOWED_HOSTS setting**: Replaces the existing ALLOWED_HOSTS configuration in `settings.py` file with the IP address of the Web Server to allow incoming requests.
+
+7. **Set permissions on temporary files**: Sets proper permissions (0755) on the temporary files used by Ansible.
+
+8. **Run the web app**: Executes the web application using the `runserver` command, allowing the app to be accessed externally via port 8080.
+
+## Usage
+
+1. Ensure you have properly configured the inventory file to define the "webserver" host with its IP address or hostname.
+
+2. Place the playbook in a file with the ".yml" extension (e.g., `deploy_web_app.yml`).
+
+3. Execute the playbook using the following command:
+
+   ```
+   ansible-playbook -i <path_to_inventory_file> deploy_web_app.yml
+   ```
+
+   Replace `<path_to_inventory_file>` with the path to your inventory file containing the "webserver" host.
+
+4. Observe the output of the playbook to monitor the progress of each task.
+
+## Note
+
+- Before running this playbook, ensure that the target Web Server is properly set up and accessible from the Ansible control machine.
+
+- Customize the playbook as needed to suit your web application's specific requirements and configurations.
+
+- Ensure you have the necessary permissions and access credentials to perform the tasks specified in the playbook.
 

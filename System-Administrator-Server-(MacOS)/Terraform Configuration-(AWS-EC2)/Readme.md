@@ -1,45 +1,62 @@
-# Terraform Configuration
+# DevOps Infrastructure Provisioning with Terraform
 
-- Installing Terraform on AWS EC2 RHEL instance: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
-- Create a new directory for the Terraform project called "terraform-ec2-instances" (Path: /home/ec2-user/terraform-ec2-instances)
-- Navigate to this Directory (/home/ec2-user/terraform-ec2-instances)
-- Create a main.tf file
+This section contains Terraform code to provision an AWS-based infrastructure for a DevOps environment. The infrastructure includes multiple EC2 instances for developer, Jenkins, Ansible, and web/apache tomcat servers.
 
----------------------
-Tomcat Configuration:
+## Prerequisites
 
-Run command: sudo vi /etc/profile.d/tomcat.sh
+- An AWS account with appropriate access credentials.
+- Terraform installed on your local machine.
 
-Then edit as per the below section:
+## Configuration
 
-#export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
-export CATALINA_HOME=/opt/tomcat
-export PATH="$PATH:$CATALINA_HOME/bin"
+Before applying the Terraform configuration, ensure that you have the following details:
 
-----------------------
-Tomcat Configuration:
+1. Replace `<YOUR_AWS_REGION>` with your desired AWS region, for example, "us-west-2" or "eu-west-1".
 
-Run command: sudo vi /etc/systemd/system/tomcat.service
+2. Replace `<YOUR_AMI_ID>` with the AMI ID of the desired Amazon Machine Image (AMI) to use for the instances.
 
-Then add the below section:
+3. Replace `<YOUR_KEY_PAIR_NAME>` with the name of your existing EC2 Key Pair to access the instances securely.
 
-[Unit]
-Description=Apache Tomcat Web Application Container
-After=syslog.target network.target
+## Terraform Configuration
 
-[Service]
-Type=forking
+The `main.tf` file contains the Terraform configuration that creates the following AWS resources:
 
-Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
-Environment=CATALINA_HOME=/opt/tomcat
-Environment=CATALINA_BASE=/opt/tomcat
+1. Developer EC2 Instance:
+   - An EC2 instance for developers with Git pre-installed.
 
-ExecStart=/opt/tomcat/bin/startup.sh
-ExecStop=/opt/tomcat/bin/shutdown.sh
+2. Jenkins EC2 Instance:
+   - An EC2 instance with Jenkins installed.
 
-User=root
-Group=root
+3. Ansible EC2 Instance:
+   - An EC2 instance with Ansible installed.
 
-[Install]
-WantedBy=multi-user.target
+4. Web/Apache Tomcat EC2 Instance:
+   - An EC2 instance with Apache Tomcat installed.
 
+## Usage
+
+1. Navigate to the directory containing `main.tf`.
+
+2. Initialize Terraform by running the following command:
+   ```
+   terraform init
+   ```
+
+3. Review and modify the variables in the `main.tf` file based on your requirements.
+
+4. Apply the Terraform configuration to create the infrastructure:
+   ```
+   terraform apply
+   ```
+
+5. Confirm the changes and proceed by typing `yes` when prompted.
+
+6. Terraform will provision the AWS resources based on your configuration.
+
+## Clean Up
+
+To destroy the created infrastructure and release AWS resources, run:
+```
+terraform destroy
+```
+Confirm the destruction by typing `yes` when prompted.
